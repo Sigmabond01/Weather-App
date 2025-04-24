@@ -86,3 +86,7 @@ button,
 label[for] {
   cursor: pointer;
 }
+a {
+    background-color: black;
+    text-decoration: none;
+}
