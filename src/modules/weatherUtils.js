@@ -40,44 +40,35 @@ function getFormattedTime(localtime) {
 
 function getFormattedImage(weather, format, moment) {
   let imageUrl;
-  let timeOfDay = "Day";
 
-  if (moment && typeof moment.is_day !== "undefined") {
-    timeOfDay = moment.is_day ? "Day" : "Night";
+  if (moment === undefined) {
+    imageUrl = `Weather=${weather}, Moment=Day.${format}`;
+  } else {
+    const momentType = moment.is_day ? "Day" : "Night";
+    imageUrl = `Weather=${weather}, Moment=${momentType}.${format}`;
   }
-
-  imageUrl = `Weather=${weather}, Moment=${timeOfDay}.${format}`;
 
   return format === "svg"
     ? `./images/icons/${imageUrl}`
     : `./images/backgrounds/${imageUrl}`;
 }
 
+function getCeiledValue(value) {
+  return Math.ceil(value);
+}
+
 function getMaxTemperature(data, isForecast, index) {
-  if (isForecast && data.temp_c !== undefined) {
-    return `${getCeiledValue(data.temp_c)}°c`;
-  } else if (data["temperature_2m_max"] && data["temperature_2m_max"][index] !== undefined) {
-    return `${getCeiledValue(data["temperature_2m_max"][index])}°c`;
-  }
-  return "N/A";
+  return isForecast
+    ? `${getCeiledValue(data.temp_c)}°c`
+    : `${getCeiledValue(data.temperature_2m_max[index])}°c`;
 }
 
 function getMinTemperature(forecastObject, index) {
-  if (
-    forecastObject["temperature_2m_min"] &&
-    forecastObject["temperature_2m_min"][index] !== undefined
-  ) {
-    return `${getCeiledValue(forecastObject["temperature_2m_min"][index])}°c`;
-  }
-  return "N/A";
+  return `${getCeiledValue(forecastObject.temperature_2m_min[index])}°c`;
 }
 
 function getTemperatureRange(maxTemperature, forecastObject, index) {
   return `${getMinTemperature(forecastObject, index)} / ${maxTemperature}`;
-}
-
-function getCeiledValue(value) {
-  return Math.ceil(value);
 }
 
 function getWeatherConditionUsingCode(code) {
@@ -99,10 +90,10 @@ function getWeatherConditionUsingCode(code) {
     ],
   };
   const matchedWeatherCondition = Object.keys(newIcons).find((key) =>
-    newIcons[key].includes(code)
-  );
-
-  return matchedWeatherCondition || "Unknown";
+    // No line break before this expression
+    // eslint-disable-next-line implicit-arrow-linebreak
+    newIcons[key].includes(code));
+  return matchedWeatherCondition;
 }
 
 export {
